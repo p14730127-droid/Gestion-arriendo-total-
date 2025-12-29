@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>V&J EVENTOS PRO v6.4</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        :root {
+            --primary: #0056b3; 
+            --gold: #d4af37; 
+            --bg-body: #f4f6f9;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); margin: 0; padding-bottom: 60px; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .screen { display: none; animation: fade 0.3s; }
+        .active { display: block; }
+        @keyframes fade { from {opacity:0;} to {opacity:1;} }
+
+        /* --- PORTADA --- */
+        #view-splash {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .splash-title { font-size: 3.5rem; color: var(--gold); text-transform: uppercase; font-weight: bold; margin: 0; text-shadow: 3px 3px 10px #000; text-align: center; line-height: 1.1; }
+        .splash-subtitle { font-size: 1.1rem; color: #fff; letter-spacing: 4px; margin-top: 10px; margin-bottom: 50px; text-shadow: 2px 2px 5px #000; text-align: center; }
+        .btn-ingresar-gold { background: var(--gold); color: #000; border: none; padding: 18px 60px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 0 20px rgba(212, 175, 55, 0.7); transition: transform 0.2s; margin-bottom: 40px; }
+        .btn-ingresar-gold:active { transform: scale(0.95); }
+        .creator-sign { position: absolute; bottom: 80px; font-family: 'Times New Roman', serif; font-size: 1.6rem; color: #ffffff; font-style: italic; text-shadow: 2px 2px 6px #000; text-align: center; }
+        .creator-sign span { color: var(--gold); font-weight: bold; font-style: normal; font-family: sans-serif; text-transform: uppercase; display: block; font-size: 1.2rem; margin-top: 5px; letter-spacing: 2px; }
+
+        /* --- PANTALLA BLOQUEO (LICENCIA) --- */
+        #view-blocked {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #222; color: white; z-index: 10000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
+        }
+
+        /* --- BOTON AYUDA FLOTANTE --- */
+        .help-btn {
+            position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
+            background: var(--primary); color: white; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 900; cursor: pointer;
+        }
+
+        /* --- INTERFAZ --- */
+        .sub-header { background: var(--primary); color: white; padding: 18px 20px; font-weight: bold; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
+        .sub-header i { font-size: 1.5rem; cursor: pointer; padding: 5px; }
+        .main-header { background: #1a1a1a; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .menu-card { background: white; border-radius: 15px; padding: 20px 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .menu-card:active { transform: scale(0.98); background: #f0f0f0; }
+        .card { background: white; margin: 15px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 10px; box-sizing: border-box; background: #fff; }
+        .label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 5px; text-transform: uppercase; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; }
+        .btn-primary { background: var(--primary); } 
+        .btn-success { background: var(--success); } 
+        .btn-warning { background: var(--warning); color: #333; } 
+        .btn-info { background: var(--info); }
+        .btn-danger { background: var(--danger); } 
+        .btn-neutral { background: #6c757d; }
+        .ic-blue { color: var(--primary); font-size: 2rem; margin-bottom: 10px; } 
+        .ic-red { color: var(--danger); font-size: 2rem; margin-bottom: 10px; }
+        .ic-warning { color: var(--warning); font-size: 2rem; margin-bottom: 10px; }
+        .menu-title { font-weight: bold; font-size: 0.8rem; color: #444; text-transform: uppercase; }
+
+        /* Componentes Específicos */
+        .pedido-item { border-left: 5px solid #ccc; padding: 15px; margin-bottom: 10px; background: white; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; }
+        
+        #search_results { position: absolute; background: white; width: 85%; z-index: 100; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .search-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.95rem; }
+        .table-stock { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .table-stock td { padding: 10px; border-bottom: 1px solid #eee; }
+        
+        /* CALENDARIO SEMAFORO */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-top: 10px; }
+        .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 5px; border: 1px solid #eee; background: white; cursor: pointer; position: relative; }
+        .cal-day.today { border: 2px solid var(--primary); font-weight: bold; }
+        
+        .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 2px; }
+        .dot-green { background-color: var(--success); }
+        .dot-yellow { background-color: var(--warning); }
+        .dot-red { background-color: var(--danger); box-shadow: 0 0 5px var(--danger); }
+
+        /* CAJA CHICA DASHBOARD */
+        .caja-dash { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; text-align: center; margin-bottom: 15px; }
+        .caja-box { padding: 10px 5px; border-radius: 5px; color: white; font-size: 0.9rem; }
+        .caja-fecha-header { background: #eee; padding: 5px 10px; font-weight: bold; margin-top: 15px; border-radius: 5px; color: #666; font-size: 0.9rem; }
+        
+        /* Modales */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; }
+        .modal-box { background: white; width: 90%; max-width: 350px; padding: 20px; border-radius: 10px; text-align: center; }
+
+        /* Imprimir */
+        @media print {
+            body * { visibility: hidden; }
+            #view-detalle, #view-detalle * { visibility: visible; }
+            #view-detalle { position: absolute; left: 0; top: 0; width: 100%; }
+            .sub-header, #det_acciones, .btn, .help-btn { display: none !important; }
+            #det_obs_view { display: block !important; border: 1px solid #000; }
+            .card { box-shadow: none; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+    <section id="view-splash" class="active">
+        <h1 class="splash-title">V&J<br>EVENTOS</h1>
+        <p class="splash-subtitle">PLANIFICACIÓN & ARRIENDO</p>
+        <button class="btn-ingresar-gold" onclick="app.nav('view-home')">INGRESAR</button>
+        <div class="creator-sign">Creado por <span>José Chávez</span></div>
+    </section>
+
+    <section id="view-blocked">
+        <i class="fas fa-lock" style="font-size:4rem; color:var(--danger); margin-bottom:20px;"></i>
+        <h2>LICENCIA VENCIDA</h2>
+        <p>Su suscripción a V&J EVENTOS PRO ha caducado.</p>
+        <p>Por favor contacte al administrador para renovar su servicio y reactivar la aplicación.</p>
+        <small style="margin-top:20px; color:#666;">ID: VJ-CLIENT-001</small>
+    </section>
+
+    <section id="view-home" class="screen">
+        <div class="main-header"><span>GESTION ARRIENDO</span><span style="background:white; color:black; padding:2px 5px; font-size:0.8rem; font-weight:bold;">V&J</span></div>
+        <div class="sub-header"><i class="fas fa-clipboard-list"></i><span>PANEL CONTROL</span></div>
+        <div class="card" style="background:var(--primary); color:white;">
+            <small>HOY: <span id="lbl_fecha_hoy"></span></small><br>
+            <b style="font-size:1.1rem;">📦 Pendientes: <span id="lbl_pendientes">0</span></b>
+        </div>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="app.cliente.nuevo()"><i class="fas fa-plus-circle ic-blue"></i><span class="menu-title">NUEVO PEDIDO</span></div>
+            <div class="menu-card" onclick="app.calendario.render(); app.nav('view-calendario')"><i class="fas fa-calendar-alt ic-blue"></i><span class="menu-title">CALENDARIO</span></div>
+            <div class="menu-card" onclick="app.stock.render(); app.nav('view-stock')"><i class="fas fa-boxes ic-blue"></i><span class="menu-title">INVENTARIO</span></div>
+            <div class="menu-card" onclick="app.docs.render(); app.nav('view-docs')"><i class="fas fa-folder-open ic-blue"></i><span class="menu-title">DOCUMENTOS</span></div>
+            <div class="menu-card" onclick="app.caja.render(); app.nav('view-caja')"><i class="fas fa-cash-register ic-blue"></i><span class="menu-title">CAJA CHICA</span></div>
+            <input type="file" id="file_backup" style="display:none" onchange="app.data.restore(this)">
+            <div class="menu-card" onclick="document.getElementById('file_backup').click()"><i class="fas fa-upload ic-warning"></i><span class="menu-title">CARGAR DATOS</span></div>
+            <div class="menu-card" onclick="app.data.backup()"><i class="fas fa-save ic-red"></i><span class="menu-title">RESPALDO</span></div>
+        </div>
+        <div class="help-btn" onclick="app.help.open()">?</div>
+    </section>
+
+    <section id="view-cliente" class="screen">
+        <div class="sub-header"><i class="fas fa-arrow-left" onclick="app.nav('view-home')"></i><span>FICHA CLIENTE</span></div>
+        <div class="card">
+            <label class="label">Buscar o Crear Cliente</label>
+            <input type="text" id="cli_nombre" class="input" list="lista_clientes" onchange="app.cliente.auto(this.value)" placeholder="Escriba nombre...">
+            <datalist id="lista_clientes"></datalist>
+            
+            <label class="label">Fecha Evento</label><input type="date" id="cli_fecha" class="input">
+            <label class="label">Dirección</label><input type="text" id="cli_dir" class="input">
+            <label class="label">Teléfono</label><input type="tel" id="cli_tel" class="input" value="+569">
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                <div><label class="label">Carpeta</label><input type="text" id="cli_carpeta" class="input"></div>
+                <div><label class="label">Lazo</label><input type="text" id="cli_lazo" class="input"></div>
+            </div>
+
+            <div style="background:#f0f0f0; padding:10px; border-radius:8px; margin-top:10px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                    <div><label class="label" style="color:var(--primary);">Traslado</label><input type="number" id="cli_traslado" class="input" value="0"></div>
+                    <div><label class="label" style="color:var(--success);">Abono</label><input type="number" id="cli_abono" class="input" value="0"></div>
+                    <div><label class="label" style="color:var(--danger);">Garantía</label><input type="number" id="cli_garantia" class="input" value="0"></div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
+                <button class="btn btn-warning" onclick="app.cliente.modificar()">🔓 MODIFICAR</button>
+                <button class="btn btn-primary" onclick="app.cliente.soloGuardar()">💾 GUARDAR</button>
+            </div>
+            
+            <div style="text-align:center; margin:20px 0; color:#999; border-bottom:1px solid #eee;">CONTINUAR A:</div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button class="btn btn-warning" onclick="app.cliente.ir('cotizacion')">📝 COTIZAR</button>
+                <button class="btn btn-success" onclick="app.cliente.ir('reserva')">✅ RESERVAR</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-items" class="screen">
+        <div class="sub-header"><i class="fas fa-arrow-left" onclick="app.nav('view-cliente')"></i><span>PRODUCTOS</span></div>
+        <div class="card" style="background:#eef2f5;">
+            <div style="display:flex; justify-content:space-between;">
+                <div><b id="res_cliente"></b><br><small id="res_fecha" style="color:#666;"></small></div>
+                <div id="res_badge" style="padding:5px 10px; border-radius:4px; color:white; font-size:0.8rem; font-weight:bold; height:fit-content;"></div>
+            </div>
+        </div>
+        <div class="card">
+            <input type="text" id="prod_search" class="input" placeholder="🔍 Buscar producto..." onkeyup="app.pedido.filtrar(this.value)">
+            <div id="search_results"></div>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:5px;">
+                <input type="number" id="add_cant" class="input" placeholder="Cant" style="width:80px; margin:0;">
+                <div id="sel_prod_name" style="font-weight:bold; color:var(--primary); flex-grow:1;">Seleccione...</div>
+                <button class="btn btn-warning" style="width:auto; margin:0;" onclick="app.pedido.add()"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
+        <div class="card">
+            <table class="table-stock"><tbody id="tbl_pedido"></tbody></table>
+            <div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px; font-size:0.9rem; color:#666;">
+                <div style="display:flex; justify-content:space-between;"><span>Subtotal Prod:</span><span id="lbl_subtotal">$0</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>+ Traslado:</span><span id="lbl_ver_traslado">$0</span></div>
+            </div>
+            <div style="text-align:right; font-size:1.3rem; font-weight:bold; margin-top:5px; color:var(--primary);">Total Arriendo: <span id="lbl_total">$0</span></div>
+            
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
+                <div style="display:flex; justify-content:space-between; color:var(--success);"><span>- Abono:</span><span id="lbl_ver_abono">$0</span></div>
+                <div style="display:flex; justify-content:space-between; color:var(--danger); margin:5px 0;"><span>* Garantía (Aparte):</span><span id="lbl_ver_garantia">$0</span></div>
+            </div>
+
+            <div style="background:#ffebee; color:#c62828; padding:10px; border-radius:5px; margin-top:10px; text-align:center; border:1px solid #ef9a9a;">
+                <small>SALDO PENDIENTE (SIN GARANTÍA)</small><br>
+                <b style="font-size:1.5rem;" id="lbl_saldo">$0</b>
+            </div>
+        </div>
+        <div style="padding:15px;"><button class="btn btn-primary" onclick="app.pedido.finalizar()">💾 CONFIRMAR Y GUARDAR</button></div>
+    </section>
+
+    <section id="view-docs" class="screen">
+        <div class="sub-header"><i class="fas fa-arrow-left" onclick="app.nav('view-home')"></i><span>DOCUMENTOS</span></div>
+        <div style="padding:15px;">
+            <input type="text" class="input" placeholder="🔍 Buscar por nombre o folio..." onkeyup="app.docs.buscar(this.value)">
+        </div>
+        <div id="docs_list" style="padding:0 15px 15px 15px;"></div>
+    </section>
+
+    <section id="view-calendario" class="screen">
+        <div class="sub-header"><i class="fas fa-arrow-left" onclick="app.nav('view-home')"></i><span>AGENDA</span></div>
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <button class="btn btn-neutral" style="width:auto; margin:0" onclick="app.calendario.nav(-1)">❮</button>
+                <b id="cal_date" style="text-transform:capitalize;"></b>
+                <button class="btn btn-neutral" style="width:auto; margin:0" onclick="app.calendario.nav(1)">❯</button>
+            </div>
+            <div id="cal_grid" class="cal-grid"></div>
+            <div style="text-align:center; font-size:0.7rem; color:#666; margin-top:5px;">🟢 Libre &nbsp; 🟡 Medio &nbsp; 🔴 Lleno</div>
+        </div>
+        <div id="cal_list" class="card" style="display:none;">
+            <b id="cal_sel_date"></b>
+            <div id="cal_items" style="margin-top:10px;"></div>
+            <button class="btn btn-success" style="margin-top:15px;" onclick="app.calendario.ruta()">🚛 GENERAR RUTA (WSP)</button>
+        </div>
+    </section>
+
+    <section id="view-detalle" class="screen">
+        <div class="sub-header"><i class="fas fa-arrow-left" onclick="app.nav('view-docs')"></i><span>DETALLE DOCUMENTO</span></div>
+        <div class="card">
+            <div style="text-align:center; border-bottom:2px solid #ddd; padding-bottom:10px; margin-bottom:10px;">
+                <h2 style="margin:0; color:var(--gold);">V&J EVENTOS</h2>
+                <small>Planificación & Arriendo</small>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <h3 id="det_cliente" style="margin:0;"></h3>
+                <b id="det_folio" style="color:#666;"></b>
+            </div>
+            <div style="margin-top:10px; font-size:0.9rem;">
+                📅 <b id="det_fecha"></b> | 📍 <span id="det_dir"></span> | 📞 <span id="det_tel"></span>
+            </div>
+            <div style="margin-top:10px; padding:5px; background:#f9f9f9; font-size:0.85rem;">
+                Carpeta: <b id="det_carpeta"></b> | Lazo: <b id="det_lazo"></b>
+            </div>
+        </div>
+        
+        <div class="card">
+            <table class="table-stock"><tbody id="det_tabla"></tbody></table>
+            <div id="det_saldo_box" style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;"></div>
+        </div>
+        <div id="det_obs_view" class="card" style="display:none; background:#fff3cd;">
+            <label class="label">Observaciones de Retiro</label>
+            <div id="txt_obs_egreso"></div>
+        </div>
+        
+        <div class="card" id="det_acciones">
+            <button class="btn btn-warning" onclick="window.print()"><i class="fas fa-print"></i> IMPRIMIR / PDF</button>
+            <button class="btn btn-success" onclick="app.detalle.wsp()"><i class="fab fa-whatsapp"></i> ENVIAR WHATSAPP</button>
+            <button id="btn_convertir" class="btn btn-primary" style="display:none; margin-top:10px;" onclick="app.detalle.convertir()">🔄 CONVERTIR A RESERVA</button>
+            <hr style="margin:15px 0; border:0; border-top:1px solid #eee;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button id="btn_entregar" class="btn btn-info" onclick="app.detalle.estado('entregado')">🟢 ENTREGAR</button>
+                <button class="btn btn-danger" onclick="app.detalle.estado('finalizado')">🔴 RETIRAR</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-stock" class="screen">
+        <div class="sub-header"><i class="fas fa-arrow-left" onclick="app.nav('view-home')"></i><span>INVENTARIO</span></div>
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <button id="btn_lock" class="btn btn-warning" style="width:auto; margin:0; font-size:0.8rem;" onclick="app.stock.lock()">🔓 MODIFICAR</button>
+                <button class="btn btn-primary" style="width:auto; margin:0; font-size:0.8rem;" onclick="app.stock.new()">+ PRODUCTO</button>
+            </div>
+            <div style="overflow-x:auto;"><table class="table-stock"><thead><tr><th>Prod</th><th>Stock</th><th>$$</th><th></th></tr></thead><tbody id="tbl_stock"></tbody></table></div>
+        </div>
+    </section>
+
+    <section id="view-caja" class="screen">
+        <div class="sub-header"><i class="fas fa-arrow-left" onclick="app.nav('view-home')"></i><span>CAJA CHICA</span></div>
+        <div class="card">
+            <label class="label">Fecha</label>
+            <input type="date" id="caja_fecha" class="input" onchange="app.caja.render()">
+        </div>
+        <div class="caja-dash">
+            <div class="caja-box" style="background:var(--success)">INGRESOS<br><b id="caja_in">$0</b></div>
+            <div class="caja-box" style="background:var(--danger)">GASTOS<br><b id="caja_out">$0</b></div>
+            <div class="caja-box" style="background:var(--primary)">BALANCE<br><b id="caja_bal">$0</b></div>
+        </div>
+        <div class="card">
+            <input type="text" id="caja_desc" class="input" placeholder="Descripción gasto...">
+            <input type="number" id="caja_monto" class="input" placeholder="Monto...">
+            <button class="btn btn-danger" onclick="app.caja.add()">REGISTRAR GASTO</button>
+        </div>
+        <div id="caja_list" style="padding:15px;"></div>
+    </section>
+
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-box">
+            <i class="fas fa-check-circle" style="font-size:3rem; color:var(--success); margin-bottom:10px;"></i>
+            <h3>¡Guardado!</h3>
+            <p>Documento registrado exitosamente.</p>
+            <button class="btn btn-warning" onclick="app.nav('view-docs'); app.docs.render(); document.getElementById('modal-confirm').style.display='none'">📂 VER DOCUMENTOS</button>
+            <button class="btn btn-primary" onclick="app.nav('view-home'); document.getElementById('modal-confirm').style.display='none'">🏠 INICIO</button>
+        </div>
+    </div>
+
+    <div id="modal-help" class="modal-overlay" onclick="this.style.display='none'">
+        <div class="modal-box" style="text-align:left; max-height:80vh; overflow-y:auto;" onclick="event.stopPropagation()">
+            <h2 style="text-align:center; color:var(--primary)">CENTRO DE AYUDA</h2>
+            <hr>
+            <p><b>1. Crear Pedido:</b> Toca "Nuevo Pedido", busca el cliente, pon fecha y elige "Cotizar" (borrador) o "Reservar" (descuenta stock).</p>
+            <p><b>2. Semáforo Stock:</b> Si intentas reservar más de lo disponible para esa fecha, saldrá una alerta roja.</p>
+            <p><b>3. Caja Chica:</b> Al marcar un pedido como "Entregado", el saldo pendiente entra solo a la caja del día.</p>
+            <p><b>4. Respaldo:</b> Al final del día, pulsa el botón ROJO "Respaldo" y guárdate el archivo.</p>
+            <p><b>5. Cargar Datos:</b> Si cambias de cel, pulsa "Cargar Datos" y elige el archivo de respaldo.</p>
+            <div style="text-align:center; margin-top:20px;">
+                <button class="btn btn-primary" onclick="document.getElementById('modal-help').style.display='none'">ENTENDIDO</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LICENCIA_HASTA = "2030-12-31"; 
+
+        const PRODS = [
+            {id:1,nom:"Silla",val:700,stk:1000},{id:2,nom:"Funda",val:500,stk:1000},{id:3,nom:"Funda negra",val:800,stk:1000},
+            {id:4,nom:"Lazo",val:250,stk:1000},{id:5,nom:"Mesa rectangular 8p",val:2500,stk:1000},{id:6,nom:"Mantel rectangular",val:2500,stk:1000},
+            {id:7,nom:"Mantel negro rectangular",val:3000,stk:1000},{id:8,nom:"Mesa redonda 10p",val:3000,stk:1000},
+            {id:9,nom:"Mantel redondo",val:3000,stk:1000},{id:10,nom:"Carpeta",val:1000,stk:1000},{id:11,nom:"Plato principal",val:150,stk:1000},
+            {id:12,nom:"Plato de entrada",val:100,stk:1000},{id:13,nom:"Plato de pan",val:100,stk:1000},{id:14,nom:"Cuchillo",val:100,stk:1000},
+            {id:15,nom:"Tenedor",val:100,stk:1000},{id:16,nom:"Copa de vino",val:100,stk:1000},{id:17,nom:"Copa de champagne",val:100,stk:1000},
+            {id:18,nom:"Vaso largo",val:100,stk:1000},{id:19,nom:"Vaso de wiski",val:130,stk:1000},{id:20,nom:"Copa de postre",val:100,stk:1000},
+            {id:21,nom:"Cuchara de postre",val:100,stk:1000},{id:22,nom:"Ensaladera (lengua)",val:600,stk:1000},{id:23,nom:"Alcuza",val:1000,stk:1000},
+            {id:24,nom:"Panera",val:350,stk:1000},{id:25,nom:"Jarro",val:400,stk:1000},{id:26,nom:"Servilletas blanca",val:250,stk:1000},
+            {id:27,nom:"Servilleta de color",val:300,stk:1000},{id:28,nom:"Servilleteros",val:300,stk:1000},{id:29,nom:"Pocillo de pebre",val:100,stk:1000},
+            {id:30,nom:"Bandeja de garzón",val:1000,stk:1000},{id:31,nom:"Cuchara de ensalada",val:250,stk:1000},{id:32,nom:"Tenaza",val:250,stk:1000},
+            {id:33,nom:"Taza de té con platillo",val:300,stk:1000},{id:34,nom:"Taza de consome",val:150,stk:1000},{id:35,nom:"Cuchara de consome",val:100,stk:1000},
+            {id:36,nom:"Hielera (balde)",val:400,stk:1000},{id:37,nom:"Azucarero",val:300,stk:1000},{id:38,nom:"Salero",val:100,stk:1000},{id:39,nom:"Cenicero",val:100,stk:1000}
+        ];
+
+        const DB = {
+            init:()=>{
+                const hoy = new Date().toISOString().split('T')[0];
+                if(hoy > LICENCIA_HASTA){
+                    document.getElementById('view-blocked').style.display = 'flex';
+                    document.getElementById('view-splash').style.display = 'none';
+                    return; 
+                }
+                if(!localStorage.getItem('vj_prod')) localStorage.setItem('vj_prod',JSON.stringify(PRODS));
+                if(!localStorage.getItem('vj_res')) localStorage.setItem('vj_res','[]');
+                if(!localStorage.getItem('vj_cli')) localStorage.setItem('vj_cli','[]');
+                if(!localStorage.getItem('vj_caja')) localStorage.setItem('vj_caja','[]');
+                if(!localStorage.getItem('vj_fol')) localStorage.setItem('vj_fol',JSON.stringify({c:100}));
+            },
+            get:(k)=>JSON.parse(localStorage.getItem(k)||'[]'),
+            set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
+        };
+
+        const app = {
+            tmp:{it:[]}, locked:true, sel:null, currentViewItem:null, selDate:null,
+            init:()=>{
+                DB.init();
+                const h = new Date().toISOString().split('T')[0];
+                document.getElementById('lbl_fecha_hoy').innerText = h;
+                document.getElementById('caja_fecha').value = h; 
+                app.dash();
+            },
+            nav:(id)=>{
+                if(id==='view-home') document.getElementById('view-splash').style.display='none';
+                document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+                if(id!=='view-splash') document.getElementById(id).classList.add('active');
+                window.scrollTo(0,0);
+            },
+            dash:()=>{
+                const h = new Date().toISOString().split('T')[0];
+                const r = DB.get('vj_res').filter(x=>x.fe===h && x.est!=='finalizado' && x.tipo==='reserva');
+                document.getElementById('lbl_pendientes').innerText = r.length;
+            },
+            help: {
+                open:()=>{ document.getElementById('modal-help').style.display = 'flex'; }
+            },
+            cliente: {
+                nuevo:()=>{
+                    app.tmp={it:[], pagado:0};
+                    ['cli_nombre','cli_fecha','cli_dir','cli_tel','cli_carpeta','cli_lazo','cli_traslado','cli_garantia','cli_abono'].forEach(i=>{
+                        const e=document.getElementById(i); e.value=''; e.disabled=false;
+                    });
+                    document.getElementById('cli_tel').value='+569';
+                    document.getElementById('cli_traslado').value='0';
+                    document.getElementById('cli_garantia').value='0';
+                    document.getElementById('cli_abono').value='0';
+                    const dl=document.getElementById('lista_clientes');
+                    dl.innerHTML = DB.get('vj_cli').map(c=>`<option value="${c.n}">`).join('');
+                    app.nav('view-cliente');
+                },
+                auto:(v)=>{
+                    const c = DB.get('vj_cli').find(x=>x.n===v);
+                    if(c){
+                        if(confirm(`🔍 CLIENTE: ${c.n}\n¿Cargar datos guardados?`)){
+                            document.getElementById('cli_dir').value=c.d;
+                            document.getElementById('cli_tel').value=c.t;
+                            ['cli_dir','cli_tel'].forEach(i=>document.getElementById(i).disabled=true);
+                        }
+                    }
+                },
+                modificar:()=>{
+                    ['cli_dir','cli_tel','cli_fecha','cli_nombre','cli_carpeta','cli_lazo','cli_traslado','cli_garantia','cli_abono'].forEach(i=>document.getElementById(i).disabled=false);
+                },
+                soloGuardar:()=>{
+                    const n=document.getElementById('cli_nombre').value, d=document.getElementById('cli_dir').value, t=document.getElementById('cli_tel').value;
+                    if(!n) return alert("Falta nombre");
+                    let cl = DB.get('vj_cli');
+                    const idx = cl.findIndex(x=>x.n===n);
+                    if(idx>=0) cl[idx]={n,d,t}; else cl.push({n,d,t});
+                    DB.set('vj_cli',cl); alert("Cliente guardado"); app.nav('view-home');
+                },
+                ir:(tipo)=>{
+                    app.tmp.n=document.getElementById('cli_nombre').value;
+                    app.tmp.fe=document.getElementById('cli_fecha').value;
+                    app.tmp.d=document.getElementById('cli_dir').value;
+                    app.tmp.t=document.getElementById('cli_tel').value;
+                    app.tmp.ca=document.getElementById('cli_carpeta').value;
+                    app.tmp.la=document.getElementById('cli_lazo').value;
+                    app.tmp.traslado = parseInt(document.getElementById('cli_traslado').value) || 0;
+                    app.tmp.garantia = parseInt(document.getElementById('cli_garantia').value) || 0;
+                    app.tmp.pagado = parseInt(document.getElementById('cli_abono').value) || 0; 
+                    app.tmp.tipo=tipo;
+                    if(!app.tmp.n || !app.tmp.fe) return alert("Falta Nombre o Fecha");
+                    document.getElementById('res_cliente').innerText=app.tmp.n;
+                    document.getElementById('res_fecha').innerText=app.tmp.fe;
+                    const b = document.getElementById('res_badge');
+                    b.innerText = tipo==='cotizacion' ? 'COTIZACION' : 'RESERVA';
+                    b.style.background = tipo==='cotizacion' ? 'var(--warning)' : 'var(--success)';
+                    b.style.color = tipo==='cotizacion' ? '#000' : '#fff';
+                    app.pedido.render();
+                    app.nav('view-items');
+                }
+            },
+            pedido:{
+                filtrar:(t)=>{
+                    const d=document.getElementById('search_results'); d.innerHTML='';
+                    if(t.length<1) return d.style.display='none';
+                    const r=DB.get('vj_prod').filter(x=>x.nom.toLowerCase().includes(t.toLowerCase()));
+                    if(r.length){ 
+                        d.style.display='block'; 
+                        r.forEach(p=> {
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'search-item';
+                            itemDiv.innerHTML = `<div style="display:flex; justify-content:space-between;"><span>${p.nom}</span><b>$${p.val}</b></div>`;
+                            itemDiv.onclick = () => app.pedido.pick(p.id, p.nom, p.val);
+                            d.appendChild(itemDiv);
+                        });
+                    } else d.style.display='none';
+                },
+                pick:(id,n,v)=>{
+                    app.sel={id,n,v}; document.getElementById('sel_prod_name').innerText=n;
+                    document.getElementById('prod_search').value=''; 
+                    document.getElementById('search_results').style.display='none';
+                    document.getElementById('add_cant').focus();
+                },
+                add:()=>{
+                    if(!app.sel) return alert("Seleccione un producto");
+                    const c=parseInt(document.getElementById('add_cant').value); if(!c) return;
+                    const productoReal = DB.get('vj_prod').find(x => x.id === app.sel.id);
+                    const precio = productoReal ? parseInt(productoReal.val) : 0;
+                    
+                    if(app.tmp.tipo==='reserva'){
+                        const stkTotal = DB.get('vj_prod').find(x=>x.id===app.sel.id).stk;
+                        const ocupadoHoy = DB.get('vj_res')
+                            .filter(x=>x.fe===app.tmp.fe && x.est!=='finalizado' && x.tipo==='reserva') 
+                            .reduce((a,b)=>a+(b.it.find(i=>i.id===app.sel.id)?.c||0),0);
+                        
+                        const disponible = stkTotal - ocupadoHoy;
+                        if(c > disponible) {
+                            if(!confirm(`⚠️ ¡ALERTA DE STOCK!\n\nFecha: ${app.tmp.fe}\nDISPONIBLE: ${disponible}\nEstás pidiendo: ${c}\n¿Agregar de todas formas?`)) return;
+                        }
+                    }
+                    
+                    app.tmp.it.push({id:app.sel.id, n:app.sel.n, val:precio, c:c}); 
+                    app.sel=null;
+                    document.getElementById('sel_prod_name').innerText='Seleccione...'; 
+                    document.getElementById('add_cant').value='';
+                    app.pedido.render();
+                },
+                render:()=>{
+                    const t=document.getElementById('tbl_pedido'); t.innerHTML=''; let sub=0;
+                    app.tmp.it.forEach((i,x)=>{
+                        const p = parseInt(i.val) || 0;
+                        const q = parseInt(i.c) || 0;
+                        sub+=p*q;
+                        t.innerHTML+=`<tr><td>${q}</td><td>${i.n}</td><td style="text-align:right">$${p*q}</td><td style="text-align:center"><i class="fas fa-trash" style="color:#d9534f; cursor:pointer;" onclick="app.tmp.it.splice(${x},1);app.pedido.render()"></i></td></tr>`;
+                    });
+                    const traslado = app.tmp.traslado || 0;
+                    const garantia = app.tmp.garantia || 0;
+                    const abono = app.tmp.pagado || 0;
+                    const total = sub + traslado;
+                    const saldo = total - abono;
+                    
+                    document.getElementById('lbl_subtotal').innerText='$'+sub;
+                    document.getElementById('lbl_ver_traslado').innerText='$'+traslado;
+                    document.getElementById('lbl_ver_garantia').innerText='$'+garantia;
+                    document.getElementById('lbl_ver_abono').innerText='$'+abono;
+                    document.getElementById('lbl_total').innerText='$'+total;
+                    document.getElementById('lbl_saldo').innerText='$'+saldo;
+                },
+                finalizar:()=>{
+                    if(!app.tmp.it.length) return alert("No hay productos");
+                    let fol="";
+                    if(app.tmp.tipo==='cotizacion'){
+                        const f=DB.get('vj_fol')||{c:100}; fol="C-"+f.c; f.c++; DB.set('vj_fol',f);
+                    } else fol="R-"+Date.now().toString().slice(-6);
+                    app.tmp.fol=fol; 
+                    app.tmp.est='pendiente';
+                    const r=DB.get('vj_res'); r.push(app.tmp); DB.set('vj_res',r);
+                    
+                    // --- WHATSAPP AUTOMATICO AL FINALIZAR ---
+                    const sub = app.tmp.it.reduce((a,b)=>a+(b.val*b.c),0);
+                    const tras = app.tmp.traslado || 0;
+                    const gar = app.tmp.garantia || 0;
+                    const tot = sub + tras;
+                    const abo = app.tmp.pagado || 0;
+                    const sal = tot - abo;
+
+                    let m=`*${app.tmp.tipo.toUpperCase()} N° ${fol}*\n`;
+                    m+=`📅 Fecha Evento: ${app.tmp.fe}\n`;
+                    m+=`👤 Cliente: ${app.tmp.n}\n`;
+                    if(app.tmp.d) m+=`📍 Dirección: ${app.tmp.d}\n`;
+                    m+=`--------------------------------\n`;
+                    m+=`*DETALLE:*\n`;
+                    app.tmp.it.forEach(i=>m+=`▪️ ${i.c} x ${i.n} ($${i.val*i.c})\n`); 
+                    m+=`--------------------------------\n`;
+                    m+=`Subtotal: $${sub.toLocaleString()}\n`;
+                    if(tras>0) m+=`Traslado: $${tras.toLocaleString()}\n`;
+                    m+=`*TOTAL ARRIENDO: $${tot.toLocaleString()}*\n`;
+                    if(abo>0) m+=`Abono: $${abo.toLocaleString()}\n`;
+                    m+=`*SALDO PENDIENTE: $${sal.toLocaleString()}*\n`;
+                    
+                    m+=`\n--------------------------------\n`;
+                    m+=`📝 *CONDICIONES:*\n`;
+                    m+=`📌 Validez cotización: 5 días.\n`;
+                    if(gar > 0) {
+                        m +=`🔒 *GARANTÍA REQUERIDA:* $${gar.toLocaleString()}\n(Se devuelve al retirar los insumos)\n`;
+                    }
+                    m+=`--------------------------------\n`;
+                    m+=`*V&J EVENTOS*\n`;
+                    m+=`📍 San Martín 10286\n`;
+                    m+=`📞 +569 4958 1808\n`;
+                    m+=`¡Quedamos atentos a su confirmación!`;
+
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`, '_blank');
+                    app.init(); 
+                    document.getElementById('modal-confirm').style.display = 'flex';
+                }
+            },
+            docs: {
+                render:()=>{
+                    const l=document.getElementById('docs_list'); l.innerHTML='';
+                    const res = [...DB.get('vj_res')].reverse();
+                    if(res.length===0) l.innerHTML='<div style="text-align:center; padding:20px; color:#999">Sin documentos</div>';
+                    res.forEach(r=>{
+                        let badgeColor = r.tipo==='reserva'?'#28a745':'#ffc107';
+                        let textColor = r.tipo==='reserva'?'white':'black';
+                        l.innerHTML+=`<div class="pedido-item" style="border-left:5px solid ${badgeColor}" onclick="app.detalle.open('${r.fol}')">
+                            <div style="display:flex; justify-content:space-between;"><b>${r.n}</b><small style="background:${badgeColor}; color:${textColor}; padding:2px 5px; border-radius:3px;">${r.tipo.toUpperCase()}</small></div>
+                            <div style="font-size:0.85rem; color:#666;">Folio: ${r.fol} | Fecha: ${r.fe}</div>
+                        </div>`;
+                    });
+                },
+                buscar:(t)=>{
+                    const l=document.getElementById('docs_list'); l.innerHTML='';
+                    const res = [...DB.get('vj_res')].reverse().filter(x=>x.n.toLowerCase().includes(t.toLowerCase()) || x.fol.toLowerCase().includes(t.toLowerCase()));
+                    res.forEach(r=>{
+                        let badgeColor = r.tipo==='reserva'?'#28a745':'#ffc107';
+                        l.innerHTML+=`<div class="pedido-item" style="border-left:5px solid ${badgeColor}" onclick="app.detalle.open('${r.fol}')">
+                            <div style="display:flex; justify-content:space-between;"><b>${r.n}</b><small>${r.fol}</small></div>
+                            <div style="font-size:0.85rem; color:#666;">${r.fe} | ${r.tipo.toUpperCase()}</div>
+                        </div>`;
+                    });
+                }
+            },
+            calendario:{
+                ref:new Date(),
+                nav:(n)=>{app.calendario.ref.setMonth(app.calendario.ref.getMonth()+n); app.calendario.render();},
+                render:()=>{
+                    const y=app.calendario.ref.getFullYear(), m=app.calendario.ref.getMonth();
+                    document.getElementById('cal_date').innerText=new Date(y,m,1).toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+                    const days=new Date(y,m+1,0).getDate(), first=new Date(y,m,1).getDay();
+                    const g=document.getElementById('cal_grid'); g.innerHTML='';
+                    const adjustFirst = first === 0 ? 6 : first - 1; 
+                    const totalStock = DB.get('vj_prod').reduce((a,b)=>a+b.stk,0);
+                    for(let i=0;i<adjustFirst;i++)g.innerHTML+='<div></div>';
+                    for(let d=1;d<=days;d++){
+                        const f=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                        const itemsEseDia = DB.get('vj_res').filter(x=>x.fe===f && x.est!=='finalizado' && x.tipo==='reserva').reduce((a,b)=>a+b.it.reduce((subA, subB)=>subA+subB.c,0), 0);
+                        let dotClass = 'dot-green';
+                        const percent = itemsEseDia / totalStock;
+                        if(percent > 0.3) dotClass = 'dot-yellow';
+                        if(percent > 0.7) dotClass = 'dot-red';
+                        const hasEvent = itemsEseDia > 0;
+                        g.innerHTML+=`<div class="cal-day" onclick="app.calendario.ver('${f}')">${d}${hasEvent?`<div class="dot ${dotClass}"></div>`:''}</div>`;
+                    }
+                },
+                ver:(f)=>{
+                    this.selDate = f; 
+                    document.getElementById('cal_list').style.display='block';
+                    document.getElementById('cal_sel_date').innerText=f;
+                    const l=document.getElementById('cal_items'); l.innerHTML='';
+                    const rs=DB.get('vj_res').filter(x=>x.fe===f);
+                    if(!rs.length) l.innerHTML='<div style="padding:10px">Nada agendado</div>';
+                    rs.forEach(r=>{
+                        let st=r.est==='entregado'?'status-entregado':(r.est==='finalizado'?'status-finalizado':'status-pendiente');
+                        l.innerHTML+=`<div class="pedido-item ${st}" onclick="app.detalle.open('${r.fol}')"><b>${r.n}</b> (${r.tipo})<br>${r.d}</div>`;
+                    });
+                },
+                ruta:()=>{
+                    const f = app.calendario.selDate;
+                    if(!f) return alert("Selecciona un día primero");
+                    const rs=DB.get('vj_res').filter(x=>x.fe===f && x.est!=='finalizado' && x.tipo==='reserva');
+                    if(!rs.length) return alert("No hay reservas para reparto este día");
+                    let m = `🚚 *RUTA DE REPARTO (${f})*\n\n`;
+                    rs.forEach((r, i)=>{ m += `${i+1}. *${r.n}*\n📍 ${r.d}\n📞 ${r.t}\n📦 Folio: ${r.fol}\n\n`; });
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`, '_blank');
+                }
+            },
+            detalle:{
+                open:(fol)=>{
+                    const r=DB.get('vj_res').find(x=>x.fol===fol); app.currentViewItem=r;
+                    document.getElementById('det_cliente').innerText=r.n;
+                    document.getElementById('det_folio').innerText=r.fol;
+                    document.getElementById('det_dir').innerText=r.d;
+                    document.getElementById('det_tel').innerText=r.t;
+                    document.getElementById('det_fecha').innerText=r.fe;
+                    document.getElementById('det_carpeta').innerText=r.ca || "N/A";
+                    document.getElementById('det_lazo').innerText=r.la || "N/A";
+                    const t=document.getElementById('det_tabla'); t.innerHTML=''; let sub=0;
+                    r.it.forEach(i=>{ sub+=i.val*i.c; t.innerHTML+=`<tr><td>${i.c}</td><td>${i.n}</td><td>$${i.val*i.c}</td></tr>`; });
+                    const tras = r.traslado || 0;
+                    const gar = r.garantia || 0;
+                    const tot = sub + tras; 
+                    const pagado = r.pagado || 0;
+                    const saldo = tot - pagado;
+                    document.getElementById('det_saldo_box').innerHTML = `
+                        <div style="font-size:0.9rem; color:#666; margin-bottom:5px;">
+                            <div>Subtotal Prod: $${sub}</div><div>Traslado: $${tras}</div><div style="color:var(--danger)">Garantía: $${gar}</div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; border-top:1px solid #eee; padding-top:5px;"><span>TOTAL ARRIENDO:</span><span>$${tot}</span></div>
+                        <div style="display:flex; justify-content:space-between; margin-top:5px; color:var(--success);"><span>ABONO (PAGADO):</span><span>$ <input type="number" value="${pagado}" onchange="app.detalle.setPago('${r.fol}', this.value)" style="width:70px; font-weight:bold; border:1px solid #ddd;"></span></div>
+                        <div style="display:flex; justify-content:space-between; margin-top:5px; color:var(--danger); font-size:1.1rem; border-top:1px dashed #ccc; padding-top:5px;"><span>SALDO PENDIENTE:</span><span>$${saldo}</span></div>
+                    `;
+                    const obsView = document.getElementById('det_obs_view');
+                    if(r.obs_egreso) { obsView.style.display='block'; document.getElementById('txt_obs_egreso').innerText = r.obs_egreso; } else { obsView.style.display='none'; }
+                    const div = document.getElementById('det_acciones');
+                    const btnEnt = document.getElementById('btn_entregar');
+                    const btnConv = document.getElementById('btn_convertir');
+                    if(r.tipo==='reserva' && r.est!=='finalizado') { div.style.display='block'; btnEnt.style.display = r.est==='entregado' ? 'none' : 'flex'; btnConv.style.display='none'; } else if (r.tipo==='cotizacion'){ div.style.display='block'; btnEnt.style.display='none'; btnConv.style.display='block'; } else div.style.display='none';
+                    app.nav('view-detalle');
+                },
+                setPago:(fol, val)=>{
+                    const r=DB.get('vj_res'); const i=r.find(x=>x.fol===fol); i.pagado = parseInt(val) || 0; DB.set('vj_res',r); app.detalle.open(fol);
+                },
+                convertir:()=>{
+                    const r=DB.get('vj_res'); const i=r.find(x=>x.fol===app.currentViewItem.fol);
+                    if(confirm("¿Convertir esta Cotización en Reserva Oficial? (Se descontará stock)")){
+                        i.tipo = 'reserva'; i.fol = "R-"+Date.now().toString().slice(-6); DB.set('vj_res',r); alert("¡Convertido con éxito!"); app.detalle.open(i.fol);
+                    }
+                },
+                wsp:()=>{
+                    const r=app.currentViewItem;
+                    const sub = r.it.reduce((a,b)=>a+(b.val*b.c),0);
+                    const tras = r.traslado || 0;
+                    const gar = r.garantia || 0;
+                    const tot = sub + tras;
+                    const abo = r.pagado || 0;
+                    const sal = tot - abo;
+
+                    let m=`*${r.tipo.toUpperCase()} N° ${r.fol}*\n`;
+                    m+=`📅 Fecha Evento: ${r.fe}\n`;
+                    m+=`👤 Cliente: ${r.n}\n`;
+                    if(r.d) m+=`📍 Dirección: ${r.d}\n`;
+                    m+=`--------------------------------\n`;
+                    m+=`*DETALLE:*\n`;
+                    r.it.forEach(i=>m+=`▪️ ${i.c} x ${i.n} ($${i.val*i.c})\n`); 
+                    m+=`--------------------------------\n`;
+                    m+=`Subtotal: $${sub.toLocaleString()}\n`;
+                    if(tras>0) m+=`Traslado: $${tras.toLocaleString()}\n`;
+                    m+=`*TOTAL ARRIENDO: $${tot.toLocaleString()}*\n`;
+                    if(abo>0) m+=`Abono: $${abo.toLocaleString()}\n`;
+                    m+=`*SALDO PENDIENTE: $${sal.toLocaleString()}*\n`;
+                    
+                    m+=`\n--------------------------------\n`;
+                    m+=`📝 *CONDICIONES:*\n`;
+                    m+=`📌 Validez cotización: 5 días.\n`;
+                    if(gar > 0) {
+                        m +=`🔒 *GARANTÍA REQUERIDA:* $${gar.toLocaleString()}\n(Se devuelve al retirar los insumos)\n`;
+                    }
+                    m+=`--------------------------------\n`;
+                    m+=`*V&J EVENTOS*\n`;
+                    m+=`📍 San Martín 10286\n`;
+                    m+=`📞 +569 4958 1808\n`;
+                    m+=`¡Quedamos atentos a su confirmación!`;
+
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(m)}`, '_blank');
+                },
+                estado:(est)=>{
+                    const r=DB.get('vj_res'); const i=r.find(x=>x.fol===app.currentViewItem.fol);
+                    if(est==='entregado' && i.est!=='entregado'){
+                        const sub = i.it.reduce((a,b)=>a+(b.val*b.c),0);
+                        const total = sub + (i.traslado||0);
+                        const abonoPrevio = i.pagado || 0;
+                        const saldoPendiente = total - abonoPrevio; 
+                        if(saldoPendiente > 0){ const c=DB.get('vj_caja'); c.push({d:`Pago Final ${i.fol} (${i.n})`, m:saldoPendiente, f: new Date().toISOString().split('T')[0]}); DB.set('vj_caja',c); }
+                        i.pagado = total; 
+                    }
+                    if(est==='finalizado'){
+                        const obs = prompt("¿Observaciones de retiro?");
+                        if(obs) { i.obs_egreso = obs; const monto = prompt("Monto merma (0 si no hay):", "0"); if(parseInt(monto)>0) { const c=DB.get('vj_caja'); c.push({d:`Merma ${i.fol}: ${obs}`, m: -parseInt(monto), f:new Date().toISOString().split('T')[0]}); DB.set('vj_caja',c); }}
+                        if(!confirm("¿Cerrar y liberar stock?")) return;
+                    }
+                    i.est=est; DB.set('vj_res',r); alert("Estado actualizado: "+est.toUpperCase()); app.nav('view-calendario'); app.calendario.ver(i.fe); app.dash();
+                }
+            },
+            caja:{
+                render:()=>{
+                    const fechaSel = document.getElementById('caja_fecha').value;
+                    const c=DB.get('vj_caja'); 
+                    const delDia = c.filter(x => x.f === fechaSel);
+                    const ingresos = delDia.filter(x=>x.m>0).reduce((a,b)=>a+b.m,0);
+                    const gastos = delDia.filter(x=>x.m<0).reduce((a,b)=>a+b.m,0); 
+                    const balance = ingresos + gastos;
+                    document.getElementById('caja_in').innerText = '$'+ingresos.toLocaleString();
+                    document.getElementById('caja_out').innerText = '$'+Math.abs(gastos).toLocaleString();
+                    document.getElementById('caja_bal').innerText = '$'+balance.toLocaleString();
+                    let html = '';
+                    if(delDia.length === 0) html = '<div style="text-align:center;color:#999;margin-top:20px;">Sin movimientos este día</div>';
+                    delDia.slice().reverse().forEach((x, idx)=>{
+                        const color = x.m >= 0 ? 'green' : 'red';
+                        const realIdx = c.indexOf(x);
+                        html += `<div class="card" style="padding:10px; margin:5px 0; display:flex; justify-content:space-between; align-items:center;"><div>${x.d}</div><div style="display:flex; align-items:center; gap:10px;"><b style="color:${color}">$${x.m}</b><i class="fas fa-times" style="color:#ccc; cursor:pointer;" onclick="app.caja.del(${realIdx})"></i></div></div>`;
+                    });
+                    document.getElementById('caja_list').innerHTML = html;
+                },
+                add:()=>{
+                    const d=document.getElementById('caja_desc').value, m=parseInt(document.getElementById('caja_monto').value);
+                    const f=document.getElementById('caja_fecha').value;
+                    if(d&&m){const c=DB.get('vj_caja'); c.push({d, m:-m, f:f}); DB.set('vj_caja',c); app.caja.render(); document.getElementById('caja_desc').value='';document.getElementById('caja_monto').value='';}
+                },
+                del:(idx)=>{ if(confirm("¿Borrar este movimiento?")){ const c=DB.get('vj_caja'); c.splice(idx,1); DB.set('vj_caja',c); app.caja.render(); } }
+            },
+            stock:{
+                render:()=>{
+                    const b=document.getElementById('tbl_stock'); b.innerHTML='';
+                    DB.get('vj_prod').forEach(p=>{
+                        const st=app.locked?'disabled style="background:#f9f9f9;border:0"':'';
+                        b.innerHTML+=`<tr><td><input value="${p.nom}" ${st} onchange="app.stock.u(${p.id},'nom',this.value)"></td>
+                        <td><input type="number" value="${p.stk}" ${st} style="width:50px" onchange="app.stock.u(${p.id},'stk',this.value)"></td>
+                        <td><input type="number" value="${p.val}" ${st} style="width:50px" onchange="app.stock.u(${p.id},'val',this.value)"></td>
+                        <td>${!app.locked?`<i class="fas fa-trash" style="color:red" onclick="app.stock.d(${p.id})"></i>`:''}</td></tr>`;
+                    });
+                    document.getElementById('btn_lock').innerText=app.locked?'🔓 MODIFICAR':'🔒 BLOQUEAR';
+                },
+                lock:()=>{app.locked=!app.locked; app.stock.render();},
+                u:(id,k,v)=>{const p=DB.get('vj_prod'); p.find(x=>x.id===id)[k]=(k==='nom'?v:parseInt(v)); DB.set('vj_prod',p);},
+                d:(id)=>{if(confirm("Borrar?")){DB.set('vj_prod',DB.get('vj_prod').filter(x=>x.id!==id));app.stock.render();}},
+                new:()=>{
+                    if(app.locked) return alert("Habilite el botón Modificar");
+                    const n=prompt("Nombre del producto"); if(n){const p=DB.get('vj_prod'); p.push({id:Date.now(),nom:n,val:0,stk:0}); DB.set('vj_prod',p); app.stock.render();}
+                }
+            },
+            data:{ 
+                backup:()=>{
+                    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(localStorage)],{type:'application/json'}));
+                    a.download='vj_backup.json'; a.click();
+                },
+                restore:(input)=>{
+                    const file = input.files[0];
+                    if(!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            if(confirm("¿Deseas FUSIONAR los datos con los actuales?\n\n[ACEPTAR] = Fusionar (Suma datos)\n[CANCELAR] = Reemplazar Todo (Borra lo actual)")) {
+                                const currentRes = DB.get('vj_res');
+                                const newRes = JSON.parse(data.vj_res || '[]');
+                                newRes.forEach(nr => { if(!currentRes.some(cr => cr.fol === nr.fol)) currentRes.push(nr); });
+                                localStorage.setItem('vj_res', JSON.stringify(currentRes));
+
+                                const currentCaja = DB.get('vj_caja');
+                                const newCaja = JSON.parse(data.vj_caja || '[]');
+                                const mergedCaja = currentCaja.concat(newCaja);
+                                localStorage.setItem('vj_caja', JSON.stringify(mergedCaja));
+                                
+                                const currentCli = DB.get('vj_cli');
+                                const newCli = JSON.parse(data.vj_cli || '[]');
+                                newCli.forEach(nc => { if(!currentCli.some(cc => cc.n === nc.n)) currentCli.push(nc); });
+                                localStorage.setItem('vj_cli', JSON.stringify(currentCli));
+
+                                alert("¡Datos fusionados con éxito!");
+                            } else {
+                                Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
+                                alert("¡Datos restaurados (reemplazados) con éxito!");
+                            }
+                            location.reload();
+                        } catch(err) { alert("Error al leer archivo"); }
+                    };
+                    reader.readAsText(file);
+                }
+            }
+        };
+        window.onload=app.init;
+    </script>
+</body>
+</html>
